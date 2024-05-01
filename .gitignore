@@ -1,0 +1,15 @@
+__pycache__
+# pyenv
+.python-version
+# coverage
+.coverage_data
+.coverage
+.coverage.*
+htmlcov
+# etc
+.data
+.envrc
+.idea
+local_*
+# FIXME
+tests
