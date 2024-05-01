@@ -1,6 +1,6 @@
 # llm_function
 
-Package LLM prompt templates, schemas, validators and fitness fns into reusable Python functions
+The `llm_function` library streamlines the creation of LLM prompt templates, schemas, validators, and fitness functions, making them reusable across various projects.
 
 > Experimental! Work in progress.
 
@@ -72,6 +72,11 @@ interests: string[];
 Answer with only JSON.
 ```
 
+Define the JSON Schema under `schema.response.json_schema` 
+When using the llama.cpp provider, the generation will be constrained to this schema.
+For all providers the response will be validated.
+You can define a custom validator which will be ran on the parsed, schema-validated response object.
+
 ```python
 schema = {
     "args": {
@@ -107,7 +112,7 @@ schema = {
             },
             "required": ["id", "username", "age", "gender"]
         },
-        # define a custom validator for the parsed JSON
+        # you can define a custom validator for the parsed JSON below:
         "validator": some_custom_validator
     }
 }
