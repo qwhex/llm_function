@@ -7,13 +7,16 @@ from llm_function.common.util import exclude
 
 
 class LlamaCppProvider:
-    def __init__(self, model_path, verbose=False, **extra_args):
-        self.model_path = model_path
-        self.verbose = verbose
+    def __init__(self, model_path, n_ctx=1024, verbose=False, **extra_args):
+        # FIXME: needed?
+        # self.model_path = model_path
+        # self.verbose = verbose
+        # self.n_ctx = n_ctx
 
         self.llm = Llama(
                 n_gpu_layers=-1,
                 chat_format="chatml",
+                n_ctx=n_ctx,
                 model_path=model_path,
                 verbose=verbose,
                 **extra_args

@@ -92,17 +92,19 @@ def create_llm_fn(
         # FIXME:
         responses = provider.sync_generate_responses(filled_template, k, provider_config)
 
-        if fitness:
-            responses = sorted(responses, key=fitness, reverse=True)
-
+        validated_responses = []
         for response in responses:
             logger.debug(f"Raw response:\n{response}\n")
-
             try:
-                validated_response = validate_response(response, schema["response"])
-                yield validated_response
+                validated_responses.append(validate_response(response, schema["response"]))
+                # yield validated_response
             except ValueError as e:
                 logger.error(f"Invalid response skipped: {e}")
                 continue
+
+        if fitness:
+            validated_responses = sorted(validated_responses, key=fitness, reverse=True)
+
+        yield from validated_responses
 
     return llm_fn
