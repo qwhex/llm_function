@@ -1,6 +1,4 @@
 from typing import Protocol, Tuple, Any
-from llm_function.providers.mistral import MistralProvider
-from llm_function.providers.openai import OpenAIProvider
 
 
 class Provider(Protocol):
