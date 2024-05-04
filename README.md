@@ -1,8 +1,35 @@
 # llm_function
 
-The `llm_function` library streamlines the creation of LLM prompt templates, schemas, validators, and fitness functions, making them reusable across various projects.
+The `llm_function` library streamlines the creation of LLM prompt templates, schemas, validators, and fitness functions,
+making them reusable across various projects.
 
 > Experimental! Work in progress.
+
+## Installation
+
+with pip:
+
+`pip install git+ssh://git@github.com/qwhex/llm_function.git`
+
+### Providers
+
+### API Providers
+
+Currently we support OpenAI and Mistral. You can install the necessary requirements this way:
+
+`pip install git+ssh://git@github.com/qwhex/llm_function.git[mistral]`
+
+or
+
+`pip install git+ssh://git@github.com/qwhex/llm_function.git[openai]`
+
+### Llama.cpp Support
+
+If you want to use it with llama.cpp, install the wrapper with the necessary install flags, e.g. for "cuda":
+
+`CMAKE_ARGS="-DLLAMA_CUDA=on" pip install llama-cpp-python`
+
+More info here
 
 ## Usage
 
