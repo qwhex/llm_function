@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import traceback
 
 
 def with_exponential_backoff(initial_delay=5, max_retries=5):
@@ -14,6 +15,7 @@ def with_exponential_backoff(initial_delay=5, max_retries=5):
                     return await func(*args, **kwargs)
                 except Exception as e:
                     print(e)
+                    traceback.print_exception(e)
                     if retries == max_retries:
                         raise
                     print(f"Error encountered. Retrying in {delay} seconds...")
