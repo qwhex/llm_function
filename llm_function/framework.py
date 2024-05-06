@@ -5,7 +5,7 @@ from typing import Callable, Dict, Any
 import jsonschema
 from jinja2 import Environment, BaseLoader, Template
 
-from llm_function.common.util import spread, deep, json_print
+from llm_function.common.util import spread, deep, json_print, extract_json
 from llm_function.providers import Provider
 
 logging.basicConfig(level=logging.INFO)
@@ -58,7 +58,7 @@ def validate_response(response, schema):
     json_schema, validate = spread(schema, ['json_schema', 'validate'])
 
     if json_schema:
-        response = json.loads(response)
+        response = extract_json(response)
         try:
             jsonschema.validate(response, json_schema)
         except jsonschema.exceptions.ValidationError as e:
