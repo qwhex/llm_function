@@ -1,11 +1,13 @@
-import json
+import logging
+from typing import Callable, Dict, Any
+
 import logging
 from typing import Callable, Dict, Any
 
 import jsonschema
 from jinja2 import Environment, BaseLoader, Template
 
-from llm_function.common.util import spread, deep, json_print, extract_json
+from llm_function.common.util import spread, deep, extract_json
 from llm_function.providers import Provider
 
 logging.basicConfig(level=logging.INFO)
@@ -80,7 +82,7 @@ def create_llm_fn(
         provider_config = {}
 
     provider_config['json_schema'] = deep(schema, 'response.json_schema')
-    json_print(provider_config)
+    # json_print(provider_config)
 
     template_fn = load_template(template_path)
 
@@ -88,6 +90,9 @@ def create_llm_fn(
         validated_args = validate_args(args, schema["args"])
         filled_template = template_fn(validated_args)
         logger.debug(filled_template)
+
+        # FIXME: do these at a specific point during the execution flow
+        filled_template = filled_template.strip()
 
         # FIXME:
         responses = provider.sync_generate_responses(filled_template, k, provider_config)

@@ -3,16 +3,15 @@ import asyncio
 from llama_cpp import Llama
 
 from llm_function.common.cache import cached, get_cache_key_based_on_all_args
-from llm_function.common.util import exclude
+from llm_function.common.util import exclude, json_print
 
 
 class LlamaCppProvider:
-    def __init__(self, model_path, n_ctx=1024, verbose=False, **extra_args):
-        # FIXME: needed?
-        # self.model_path = model_path
-        # self.verbose = verbose
-        # self.n_ctx = n_ctx
-
+    def __init__(self,
+                 model_path,
+                 n_ctx=1024,
+                 verbose=False,
+                 **extra_args):
         self.llm = Llama(
                 n_gpu_layers=-1,
                 chat_format="chatml",
@@ -26,7 +25,6 @@ class LlamaCppProvider:
         """
         Adapts the OpenAI ChatCompletion API call according to the provided provider_config.
         """
-
         responses = []
         for seed in range(k):
             r = await run_for_prompt(llm=self.llm,
@@ -68,14 +66,15 @@ async def run_for_prompt(llm,
             "schema": json_schema
         }
 
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt},
+    ]
+
+    # json_print(messages)
+
     response = llm.create_chat_completion(
-            messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt,
-                },
-                {"role": "user", "content": prompt},
-            ],
+            messages=messages,
             temperature=temperature,
             max_tokens=length,
             seed=seed,
