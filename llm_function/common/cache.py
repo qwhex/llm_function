@@ -2,8 +2,16 @@ import functools
 import hashlib
 import json
 import os
+import re
 
 from llm_function.common import config
+
+
+def make_path_safe(s):
+    pattern = r'[^a-zA-Z0-9_\-\.]'
+    safe_string = re.sub(pattern, '_', s)
+
+    return safe_string
 
 
 def get_cache_key_based_on_all_args(*args, **kwargs):
@@ -26,6 +34,7 @@ def cached(func_name: str, gen_cache_filename=get_cache_key_based_on_all_args):
             ensure_dir_exists(cache_dir)
 
             cache_filename = gen_cache_filename(*args, **kwargs)
+            cache_filename = make_path_safe(cache_filename)
             cache_path = os.path.join(cache_dir, cache_filename)
 
             # If result exists in cache, read and return it
