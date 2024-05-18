@@ -51,23 +51,19 @@ def get_cache_key(*args, **kwargs):
 
 @with_exponential_backoff()
 @cached("openai_chat_completions", get_cache_key)
-async def run_for_prompt(openai, prompt: str, length=2500, model="gpt-4", seed=0, json_schema=None):
-    chat_completion = await openai.chat.completions.create(model=model,
-                                                           messages=[
-                                                               {"role": "user", "content": prompt}],
-                                                           max_tokens=length,
-                                                           seed=seed,
-                                                           )
+async def run_for_prompt(openai, prompt: str, length=2500, model="gpt-4", seed=0, json_mode=False, json_schema=None):
+    extra_kwargs = {}
+    if json_mode or json_schema:
+        # FIXME: schema
+        extra_kwargs['response_format'] = {"type": "json_object"}
+
+    chat_completion = await openai.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=length,
+            seed=seed,
+            **extra_kwargs,
+    )
 
     result = chat_completion.choices[0].message.content
     return result
-
-    # TODO: there's a new "json mode"!!!!
-    # completion = openai.chat.completions.create(
-    #         model="gpt-4-1106-preview",
-    #         response_format={"type": "json_object"},
-    #         messages=[
-    #             {"role": "user",
-    #              "content": "translate this message to vietnamese, thailand, lao, cambodia: Hello, nice to meet you, reply in json object with key is the language code"}
-    #         ]
-    # )

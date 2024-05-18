@@ -81,7 +81,7 @@ def json_print(obj, indent: int = 2, ensure_ascii: bool = False):
     print(json.dumps(obj, indent=indent, ensure_ascii=ensure_ascii))
 
 
-def extract_json(message):
+def extract_json(message: str):
     """
     Extract JSON data from a message string.
 
@@ -103,6 +103,7 @@ def extract_json(message):
             json_data = json.loads(json_part)
             return json_data
         except json.JSONDecodeError:
-            raise ValueError('Invalid JSON')
+            summary = message.replace("\n", " ")[:65]
+            raise ValueError(f'Invalid JSON: {summary}')
     else:
         raise ValueError('No JSON found in message')

@@ -65,6 +65,7 @@ async def run_for_prompt(llm,
             "type": "json_object",
             "schema": json_schema
         }
+        # json_print(json_schema)
 
     messages = [
         {"role": "system", "content": system_prompt},
