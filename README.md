@@ -17,11 +17,11 @@ with pip:
 
 Currently we support OpenAI and Mistral. You can install the necessary requirements this way:
 
-`pip install git+ssh://git@github.com/qwhex/llm_function.git[mistral]`
+`pip install "git+ssh://git@github.com/qwhex/llm_function.git[mistral]"`
 
 or
 
-`pip install git+ssh://git@github.com/qwhex/llm_function.git[openai]`
+`pip install "git+ssh://git@github.com/qwhex/llm_function.git[openai]"`
 
 ### Llama.cpp Support
 

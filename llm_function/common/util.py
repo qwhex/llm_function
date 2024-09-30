@@ -1,4 +1,9 @@
 import json
+import logging
+import re
+from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 def _expect_dict(obj: dict) -> None:
@@ -81,29 +86,68 @@ def json_print(obj, indent: int = 2, ensure_ascii: bool = False):
     print(json.dumps(obj, indent=indent, ensure_ascii=ensure_ascii))
 
 
-def extract_json(message: str):
+def escape_control_characters(content: str) -> str:
     """
-    Extract JSON data from a message string.
+    Escapes control characters in a JSON string by replacing them with their Unicode equivalents.
 
-    Parameters:
-    message (str): The message containing JSON data.
+    Args:
+        content (str): The JSON string to process.
 
     Returns:
-    dict: Extracted JSON data from the message.
+        str: The processed JSON string with control characters escaped.
+    """
+
+    def escape_string(match) -> str:
+        s = match.group(0)
+        s = s[1:-1]  # Remove the surrounding quotes
+        # Replace specific escaped control characters with Unicode
+        s = s.replace("\\n", "\\u000a")
+        s = s.replace("\\t", "\\u0009")
+        s = s.replace("\\r", "\\u000d")
+        s = s.replace("\\b", "\\u0008")
+        s = s.replace("\\f", "\\u000c")
+        s = s.replace("\\a", "\\u0007")
+        s = s.replace("\\x00", "\\u0000")
+        # Replace any remaining raw control characters
+        s = re.sub(r"[\x00-\x1f\x7f-\x9f]", lambda m: "\\u%04x" % ord(m.group(0)), s)
+        return f'"{s}"'
+
+    pattern = re.compile(r'"(?:[^"\\]|\\.)*"')
+
+    return pattern.sub(escape_string, content)
+
+
+def extract_json_object(message: str) -> dict[str, Any]:
+    """
+    Extracts the largest valid JSON object from a message string.
+        Note: max nesting depth is 4.
+
+    Args:
+        message (str): The message containing JSON objects.
+
+    Returns:
+        Dict[str, Any]: The extracted JSON object.
 
     Raises:
-    ValueError: If the message does not contain valid JSON.
+        ValueError: If no valid JSON object is found.
     """
-    start_index = message.find('{')
-    end_index = message.rfind('}')
+    # Use regex to find potential JSON objects
+    json_pattern = r"\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}"
+    json_candidates = re.findall(json_pattern, message)
 
-    if start_index != -1 and end_index != -1:
-        json_part = message[start_index:end_index + 1]
+    if not json_candidates:
+        raise ValueError("No JSON object found in string")
+
+    # Sort candidates by length in descending order
+    json_candidates.sort(key=len, reverse=True)
+
+    # Attempt to parse each JSON candidate
+    for json_candidate in json_candidates:
         try:
-            json_data = json.loads(json_part)
+            json_data: Dict[str, Any] = json.loads(json_candidate)
             return json_data
         except json.JSONDecodeError:
-            summary = message.replace("\n", " ")[:65]
-            raise ValueError(f'Invalid JSON: {summary}')
-    else:
-        raise ValueError('No JSON found in message')
+            continue
+
+    raise ValueError(f"Invalid JSON: {message[:65]}...")
+
